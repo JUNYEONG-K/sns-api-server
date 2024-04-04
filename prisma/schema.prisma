@@ -37,3 +37,21 @@ model Feeds {
 
   @@map("feeds")
 }
+
+model MediaContents {
+  id       Int         @id @default(autoincrement())
+  type     MediaType
+  mimeType String      @map("mime_type")
+  status   MediaStatus @default(PENDING)
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum MediaStatus {
+  PENDING
+  COMPLETED
+  DELETED
+}
