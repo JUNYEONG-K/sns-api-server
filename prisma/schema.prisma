@@ -15,7 +15,7 @@ datasource db {
 
 model Users {
   id        Int      @id @default(autoincrement())
-  nickname  String
+  nickname  String   @unique
   email     String   @unique
   password  String
   createdAt DateTime @default(now()) @map("created_at")
