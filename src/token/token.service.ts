@@ -19,7 +19,7 @@ export class TokenService {
   async issueUserAccessToken(payload: object): Promise<string> {
     return await this.jwtService.signAsync(payload, {
       secret: this.USER_JWT_SECRET_KEY,
-      expiresIn: this.USER_JWT_SECRET_KEY,
+      expiresIn: this.USER_JWT_EXPIRED_IN,
     });
   }
 }
