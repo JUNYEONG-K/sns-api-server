@@ -19,14 +19,19 @@ model Users {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  Feeds Feeds[]
+
   @@map("users")
 }
 
 model Feeds {
   id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
   textContents String   @map("text_contents")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user Users @relation(fields: [userId], references: [id])
 
   @@map("feeds")
 }
