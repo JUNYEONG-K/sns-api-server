@@ -44,6 +44,8 @@ model MediaContents {
   type     MediaType
   mimeType String      @map("mime_type")
   status   MediaStatus @default(PENDING)
+
+  @@map("media_contents")
 }
 
 enum MediaType {
