@@ -16,6 +16,15 @@ export function swaggerConfig(app: INestApplication): void {
     .setTitle(info.title)
     .setDescription(info.description)
     .setVersion(info.version)
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'Token',
+        in: 'header',
+      },
+      'user-auth',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
