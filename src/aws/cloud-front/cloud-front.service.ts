@@ -6,12 +6,16 @@ import * as cloudfrontSigner from '@aws-sdk/cloudfront-signer';
 export class CloudFrontService {
   constructor(private readonly configService: ConfigService) {}
 
-  async getPreSignedUrl(s3ObjectKey: string): Promise<string> {
-    const distributionDomainName = this.configService.get(
-      'cloudfront.distributionDomainName',
-    );
+  private readonly distributionDomainName = this.configService.get(
+    'cloudfront.distributionDomainName',
+  );
 
-    const url = `${distributionDomainName}/${s3ObjectKey}`;
+  getOriginUrl(s3ObjectKey: string): string {
+    return `${this.distributionDomainName}/${s3ObjectKey}`;
+  }
+
+  async getPreSignedUrl(s3ObjectKey: string): Promise<string> {
+    const url = this.getOriginUrl(s3ObjectKey);
 
     const privateKey = this.configService
       .get('cloudfront.privateKey')

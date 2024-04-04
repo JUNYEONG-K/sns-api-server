@@ -19,7 +19,24 @@ export class S3Service extends S3Client {
     });
   }
 
-  public getSignedUrl(command: GetObjectCommand | PutObjectCommand) {
+  private async getSignedUrl(
+    command: GetObjectCommand | PutObjectCommand,
+  ): Promise<string> {
     return getSignedUrl(this, command, { expiresIn: 3600 });
+  }
+
+  async getPutSignedUrl(
+    bucketName: string,
+    key: string,
+    mimeType: string,
+  ): Promise<string> {
+    return await this.getSignedUrl(
+      new PutObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+        ContentType: mimeType,
+        ACL: 'private',
+      }),
+    );
   }
 }
