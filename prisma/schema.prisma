@@ -40,6 +40,8 @@ model Feeds {
 
 model MediaContents {
   id       Int         @id @default(autoincrement())
+  name     String
+  url      String
   type     MediaType
   mimeType String      @map("mime_type")
   status   MediaStatus @default(PENDING)
