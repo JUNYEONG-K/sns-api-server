@@ -19,3 +19,12 @@ model Users {
 
   @@map("users")
 }
+
+model Feeds {
+  id           Int      @id @default(autoincrement())
+  textContents String   @map("text_contents")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("feeds")
+}
