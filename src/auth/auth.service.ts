@@ -22,7 +22,11 @@ export class AuthService {
       email,
       password,
     );
-    return { nickname: registeredUser.nickname, email: registeredUser.email };
+    return {
+      nickname: registeredUser.nickname,
+      email: registeredUser.email,
+      createdAt: registeredUser.createdAt,
+    };
   }
 
   async signIn(args: SignInRequestDto): Promise<SignInResponseDto> {

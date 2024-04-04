@@ -9,4 +9,8 @@ export class SignUpResponseDto {
   @ApiProperty()
   @Expose()
   email: string;
+
+  @ApiProperty()
+  @Expose()
+  createdAt: Date;
 }

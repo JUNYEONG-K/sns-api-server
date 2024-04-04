@@ -1,6 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, SerializeOptions } from "@nestjs/common";
 import { AuthService } from './auth.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { SignUpRequestDto } from './dto/request/sign-up.request.dto';
 import { SignInRequestDto } from './dto/request/sign-in.request.dto';
 import { SignUpResponseDto } from './dto/response/sign-up.response.dto';
@@ -15,6 +15,11 @@ export class AuthController {
   @ApiOperation({
     summary: '회원가입',
   })
+  @ApiCreatedResponse({
+    description: '회원가입 정보',
+    type: SignUpResponseDto,
+  })
+  @SerializeOptions({ type: SignUpResponseDto })
   async signUp(
     @Body() signUpRequestDto: SignUpRequestDto,
   ): Promise<SignUpResponseDto> {
@@ -25,6 +30,11 @@ export class AuthController {
   @ApiOperation({
     summary: '로그인',
   })
+  @ApiCreatedResponse({
+    description: '로그인 정보',
+    type: SignInResponseDto,
+  })
+  @SerializeOptions({ type: SignInResponseDto })
   async signIn(
     @Body() signInRequestDto: SignInRequestDto,
   ): Promise<SignInResponseDto> {
