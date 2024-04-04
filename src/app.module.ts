@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { TokenModule } from './token/token.module';
 import { ConfigModule } from '@nestjs/config';
 import { S3Module } from './aws/s3/s3.module';
+import { MediaContentsModule } from './media-contents/media-contents.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { S3Module } from './aws/s3/s3.module';
     AuthModule,
     TokenModule,
     S3Module,
+    MediaContentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
