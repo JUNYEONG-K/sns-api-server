@@ -50,7 +50,7 @@ export class MediaContentsService {
   buildMediaContentDto(mediaContent: MediaContents) {
     return {
       ...mediaContent,
-      url: `${this.API_BASE_URL}/contents/${mediaContent.id}`, // 그냥 바로 cloudfront origin url 을 주도록 할 수 있음. (성능 문제 발생한다면)
+      url: `${this.API_BASE_URL}/media-contents/${mediaContent.id}`, // 그냥 바로 cloudfront origin url 을 주도록 할 수 있음. (성능 문제 발생한다면)
     };
   }
 
