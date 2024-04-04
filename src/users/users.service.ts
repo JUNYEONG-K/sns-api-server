@@ -18,6 +18,12 @@ export class UsersService {
     });
   }
 
+  async findUserByEmailOrThrow(email: string): Promise<Users> {
+    const user = await this.findUserByEmail(email);
+    if (!user) throw new InternalServerErrorException('이메일 사용자 없음!');
+    return user;
+  }
+
   async findUserByNickname(nickname: string): Promise<Users | null> {
     return await this.prisma.users.findUnique({
       where: { nickname },
