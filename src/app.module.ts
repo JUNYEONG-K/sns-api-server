@@ -7,6 +7,7 @@ import { FeedsModule } from './feeds/feeds.module';
 import { AuthModule } from './auth/auth.module';
 import { TokenModule } from './token/token.module';
 import { ConfigModule } from '@nestjs/config';
+import { S3Module } from './aws/s3/s3.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ConfigModule } from '@nestjs/config';
     FeedsModule,
     AuthModule,
     TokenModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],
