@@ -3,10 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LeaveCommentRequestDto } from './dto/request/leave-comment.request.dto';
 import { Comments, Users } from '@prisma/client';
 import { CommentDto } from './dto/response/comment.dto';
+import { FeedsService } from '../feeds/feeds.service';
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly feedsService: FeedsService,
+  ) {}
 
   async createComment(
     userId: number,
@@ -22,8 +26,10 @@ export class CommentsService {
     userId: number,
     args: LeaveCommentRequestDto,
   ): Promise<void> {
-    const { feedId, textContents } = args;
+    const { feedId, textContents, hashtags } = args;
     await this.createComment(userId, feedId, textContents);
+    if (hashtags.length > 0)
+      await this.feedsService.assignHashtag(feedId, hashtags);
   }
 
   async getCommentsByFeedId(

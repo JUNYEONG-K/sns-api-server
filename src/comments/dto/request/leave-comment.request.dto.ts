@@ -11,4 +11,8 @@ export class LeaveCommentRequestDto {
   @IsNotEmpty()
   @IsString()
   textContents: string;
+
+  @ApiProperty({ type: [String] })
+  @IsNotEmpty()
+  hashtags: string[];
 }

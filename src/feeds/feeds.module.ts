@@ -9,5 +9,6 @@ import { HashtagsModule } from '../hashtags/hashtags.module';
   imports: [PrismaModule, FollowsModule, HashtagsModule],
   controllers: [FeedsController],
   providers: [FeedsService],
+  exports: [FeedsService],
 })
 export class FeedsModule {}
