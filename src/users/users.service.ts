@@ -9,6 +9,7 @@ export class UsersService {
 
   buildUserDto(user: Users): UserDto {
     return {
+      id: user.id,
       nickname: user.nickname,
       email: user.email,
     };
