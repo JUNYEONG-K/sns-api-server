@@ -21,10 +21,10 @@ model Users {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Feeds      Feeds[]
+  feeds      Feeds[]
   followedBy Follows[]  @relation("followerRelation")
   following  Follows[]  @relation("followeeRelation")
-  Comments   Comments[]
+  comments   Comments[]
 
   @@map("users")
 }
