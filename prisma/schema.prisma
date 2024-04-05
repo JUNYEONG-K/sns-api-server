@@ -71,7 +71,7 @@ model Comments {
 
 model Hashtags {
   id  Int    @id @default(autoincrement())
-  tag String
+  tag String @unique
 
   feedsHashtags FeedsHashtags[]
 

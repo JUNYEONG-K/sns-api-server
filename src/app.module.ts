@@ -12,6 +12,7 @@ import { CloudFrontModule } from './aws/cloud-front/cloud-front.module';
 import { CustomConfigModule } from './config/custom-config.module';
 import { FollowsModule } from './follows/follows.module';
 import { CommentsModule } from './comments/comments.module';
+import { HashtagsModule } from './hashtags/hashtags.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CommentsModule } from './comments/comments.module';
     CloudFrontModule,
     FollowsModule,
     CommentsModule,
+    HashtagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
