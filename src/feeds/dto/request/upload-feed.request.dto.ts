@@ -7,7 +7,7 @@ export class UploadFeedRequestDto {
   @IsNotEmpty()
   textContents: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: [Number] })
   @IsNotEmpty()
   hashtagIds: number[];
 }
