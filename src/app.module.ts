@@ -10,6 +10,7 @@ import { S3Module } from './aws/s3/s3.module';
 import { MediaContentsModule } from './media-contents/media-contents.module';
 import { CloudFrontModule } from './aws/cloud-front/cloud-front.module';
 import { CustomConfigModule } from './config/custom-config.module';
+import { FollowsModule } from './follows/follows.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CustomConfigModule } from './config/custom-config.module';
     S3Module,
     MediaContentsModule,
     CloudFrontModule,
+    FollowsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
