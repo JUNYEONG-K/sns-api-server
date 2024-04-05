@@ -36,7 +36,7 @@ export class FeedsController {
   }
 
   @Get('following')
-  @ApiOperation({ summary: '피드 목록 조회' })
+  @ApiOperation({ summary: '팔로잉 피드 목록 조회' })
   @ApiOkResponse({ type: [FeedDto] })
   @SerializeOptions({ type: FeedDto })
   async getFollowingFeeds(@CurrentUser() user: Users): Promise<FeedDto[]> {
