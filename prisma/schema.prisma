@@ -21,9 +21,23 @@ model Users {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Feeds Feeds[]
+  Feeds      Feeds[]
+  followedBy Follows[] @relation("followerRelation")
+  following  Follows[] @relation("followeeRelation")
 
   @@map("users")
+}
+
+model Follows {
+  followeeId Int      @map("followee_id")
+  followerId Int      @map("follower_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  followee Users @relation("followeeRelation", fields: [followeeId], references: [id])
+  follower Users @relation("followerRelation", fields: [followerId], references: [id])
+
+  @@id([followeeId, followerId])
+  @@map("follows")
 }
 
 model Feeds {
