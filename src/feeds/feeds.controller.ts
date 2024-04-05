@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   SerializeOptions,
   UseGuards,
@@ -41,5 +42,16 @@ export class FeedsController {
   @SerializeOptions({ type: FeedDto })
   async getFollowingFeeds(@CurrentUser() user: Users): Promise<FeedDto[]> {
     return await this.feedsService.getFollowingFeeds(user.id);
+  }
+
+  @Get('hashtag/:tag')
+  @ApiOperation({ summary: '해시태그 피드 목록 조회' })
+  @ApiOkResponse({ type: [FeedDto] })
+  @SerializeOptions({ type: FeedDto })
+  async getHashtagFeeds(
+    @CurrentUser() user: Users,
+    @Param('tag') tag: string,
+  ): Promise<FeedDto[]> {
+    return await this.feedsService.getHashtagFeeds(user.id, tag);
   }
 }
