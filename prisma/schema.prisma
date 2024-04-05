@@ -48,8 +48,9 @@ model Feeds {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  user     Users      @relation(fields: [userId], references: [id])
-  Comments Comments[]
+  user          Users           @relation(fields: [userId], references: [id])
+  Comments      Comments[]
+  feedsHashtags FeedsHashtags[]
 
   @@map("feeds")
 }
@@ -66,6 +67,26 @@ model Comments {
   feed Feeds @relation(fields: [feedId], references: [id])
 
   @@map("comments")
+}
+
+model Hashtags {
+  id  Int    @id @default(autoincrement())
+  tag String
+
+  feedsHashtags FeedsHashtags[]
+
+  @@map("hashtags")
+}
+
+model FeedsHashtags {
+  feedId    Int @map("feed_id")
+  hashtagId Int @map("hashtag_id")
+
+  feed    Feeds    @relation(fields: [feedId], references: [id])
+  hashtag Hashtags @relation(fields: [hashtagId], references: [id])
+
+  @@id([feedId, hashtagId])
+  @@map("feeds_hashtags")
 }
 
 model MediaContents {
