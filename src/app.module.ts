@@ -11,6 +11,7 @@ import { MediaContentsModule } from './media-contents/media-contents.module';
 import { CloudFrontModule } from './aws/cloud-front/cloud-front.module';
 import { CustomConfigModule } from './config/custom-config.module';
 import { FollowsModule } from './follows/follows.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { FollowsModule } from './follows/follows.module';
     MediaContentsModule,
     CloudFrontModule,
     FollowsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
