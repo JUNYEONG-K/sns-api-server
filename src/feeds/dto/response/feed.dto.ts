@@ -10,6 +10,10 @@ export class FeedDto {
 
   @ApiProperty()
   @Expose()
+  id: number;
+
+  @ApiProperty()
+  @Expose()
   textContents: string;
 
   @ApiProperty()
