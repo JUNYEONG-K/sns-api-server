@@ -22,8 +22,9 @@ model Users {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   Feeds      Feeds[]
-  followedBy Follows[] @relation("followerRelation")
-  following  Follows[] @relation("followeeRelation")
+  followedBy Follows[]  @relation("followerRelation")
+  following  Follows[]  @relation("followeeRelation")
+  Comments   Comments[]
 
   @@map("users")
 }
@@ -47,9 +48,24 @@ model Feeds {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  user Users @relation(fields: [userId], references: [id])
+  user     Users      @relation(fields: [userId], references: [id])
+  Comments Comments[]
 
   @@map("feeds")
+}
+
+model Comments {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  feedId       Int      @map("feed_id")
+  textContents String   @map("text_contents")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user Users @relation(fields: [userId], references: [id])
+  feed Feeds @relation(fields: [feedId], references: [id])
+
+  @@map("comments")
 }
 
 model MediaContents {
