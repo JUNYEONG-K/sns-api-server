@@ -4,12 +4,14 @@ import { UploadFeedRequestDto } from './dto/request/upload-feed.request.dto';
 import { Feeds, Users } from '@prisma/client';
 import { FollowsService } from '../follows/follows.service';
 import { FeedDto } from './dto/response/feed.dto';
+import { HashtagsService } from '../hashtags/hashtags.service';
 
 @Injectable()
 export class FeedsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly followsService: FollowsService,
+    private readonly hashtagsService: HashtagsService,
   ) {}
 
   async create(userId: number, textContents: string): Promise<Feeds> {
@@ -19,17 +21,18 @@ export class FeedsService {
   }
 
   async upload(userId: number, args: UploadFeedRequestDto): Promise<void> {
-    const { textContents, hashtagIds } = args;
+    const { textContents, hashtags } = args;
     const feed = await this.create(userId, textContents);
-    if (hashtagIds.length > 0) await this.assignHashtag(feed.id, hashtagIds);
+    if (hashtags.length > 0) await this.assignHashtag(feed.id, hashtags);
   }
 
   // TODO: feed service 에 있는 게 맞나?
-  async assignHashtag(feedId: number, hashtagIds: number[]): Promise<void> {
+  async assignHashtag(feedId: number, hashtags: string[]): Promise<void> {
     await Promise.all(
-      hashtagIds.map(async (hashtagId) => {
+      hashtags.map(async (tag) => {
+        const hashtag = await this.hashtagsService.findOrCreateHashTag(tag);
         return await this.prisma.feedsHashtags.create({
-          data: { hashtagId, feedId },
+          data: { hashtagId: hashtag.id, feedId },
         });
       }),
     );
