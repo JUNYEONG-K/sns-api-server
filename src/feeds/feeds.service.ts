@@ -19,8 +19,20 @@ export class FeedsService {
   }
 
   async upload(userId: number, args: UploadFeedRequestDto): Promise<void> {
-    const { textContents } = args;
-    await this.create(userId, textContents);
+    const { textContents, hashtagIds } = args;
+    const feed = await this.create(userId, textContents);
+    if (hashtagIds.length > 0) await this.assignHashtag(feed.id, hashtagIds);
+  }
+
+  // TODO: feed service 에 있는 게 맞나?
+  async assignHashtag(feedId: number, hashtagIds: number[]): Promise<void> {
+    await Promise.all(
+      hashtagIds.map(async (hashtagId) => {
+        return await this.prisma.feedsHashtags.create({
+          data: { hashtagId, feedId },
+        });
+      }),
+    );
   }
 
   async getUserFeeds(userId: number): Promise<Feeds[]> {
