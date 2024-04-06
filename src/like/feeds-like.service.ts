@@ -7,9 +7,11 @@ import { Feeds } from '@prisma/client';
 export class FeedsLikeService implements LikeService<Feeds> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createLike(targetId: number, userId: number): Promise<void> {
-    await this.prisma.feedLikes.create({
-      data: { feedId: targetId, userId },
+  async like(targetId: number, userId: number): Promise<void> {
+    await this.prisma.feedLikes.upsert({
+      where: { feedId_userId: { feedId: targetId, userId } },
+      create: { feedId: targetId, userId },
+      update: {},
     });
   }
 

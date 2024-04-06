@@ -7,9 +7,11 @@ import { PrismaService } from '../prisma/prisma.service';
 export class CommentsLikeService implements LikeService<Comments> {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createLike(targetId: number, userId: number): Promise<void> {
-    await this.prisma.commentLikes.create({
-      data: { commentId: targetId, userId },
+  async like(targetId: number, userId: number): Promise<void> {
+    await this.prisma.commentLikes.upsert({
+      where: { commentId_userId: { commentId: targetId, userId } },
+      create: { commentId: targetId, userId },
+      update: {},
     });
   }
 
