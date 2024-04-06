@@ -21,10 +21,12 @@ model Users {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  feeds      Feeds[]
-  followedBy Follows[]  @relation("followerRelation")
-  following  Follows[]  @relation("followeeRelation")
-  comments   Comments[]
+  feeds        Feeds[]
+  followedBy   Follows[]      @relation("followerRelation")
+  following    Follows[]      @relation("followeeRelation")
+  comments     Comments[]
+  feedLikes    FeedLikes[]
+  commentLikes CommentLikes[]
 
   @@map("users")
 }
@@ -52,6 +54,7 @@ model Feeds {
   user          Users           @relation(fields: [userId], references: [id])
   Comments      Comments[]
   feedsHashtags FeedsHashtags[]
+  feedLikes     FeedLikes[]
 
   @@map("feeds")
 }
@@ -64,10 +67,35 @@ model Comments {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  user Users @relation(fields: [userId], references: [id])
-  feed Feeds @relation(fields: [feedId], references: [id])
+  user         Users          @relation(fields: [userId], references: [id])
+  feed         Feeds          @relation(fields: [feedId], references: [id])
+  commentLikes CommentLikes[]
 
   @@map("comments")
+}
+
+model FeedLikes {
+  feedId    Int      @map("feed_id")
+  userId    Int      @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  feed Feeds @relation(fields: [feedId], references: [id])
+  user Users @relation(fields: [userId], references: [id])
+
+  @@id([feedId, userId])
+  @@map("feed_likes")
+}
+
+model CommentLikes {
+  commentId Int      @map("comment_id")
+  userId    Int      @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  comment Comments @relation(fields: [commentId], references: [id])
+  user    Users    @relation(fields: [userId], references: [id])
+
+  @@id([commentId, userId])
+  @@map("comment_likes")
 }
 
 model Hashtags {
