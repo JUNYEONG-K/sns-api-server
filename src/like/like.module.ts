@@ -5,5 +5,6 @@ import { FeedsLikeService } from './feeds-like.service';
 @Module({
   imports: [PrismaModule],
   providers: [FeedsLikeService],
+  exports: [FeedsLikeService],
 })
 export class LikeModule {}

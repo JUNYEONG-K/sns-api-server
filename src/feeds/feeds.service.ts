@@ -5,6 +5,7 @@ import { Feeds, Users } from '@prisma/client';
 import { FollowsService } from '../follows/follows.service';
 import { FeedDto } from './dto/response/feed.dto';
 import { HashtagsService } from '../hashtags/hashtags.service';
+import { FeedsLikeService } from '../like/feeds-like.service';
 
 @Injectable()
 export class FeedsService {
@@ -12,6 +13,7 @@ export class FeedsService {
     private readonly prisma: PrismaService,
     private readonly followsService: FollowsService,
     private readonly hashtagsService: HashtagsService,
+    private readonly feedsLikeService: FeedsLikeService,
   ) {}
 
   async create(userId: number, textContents: string): Promise<Feeds> {
@@ -89,6 +91,11 @@ export class FeedsService {
       orderBy: { createdAt: 'desc' },
     });
 
+    return feeds.map((feed) => this.buildFeedDto(feed));
+  }
+
+  async getLikeFeeds(userId: number): Promise<FeedDto[]> {
+    const feeds = await this.feedsLikeService.getUserLikes(userId);
     return feeds.map((feed) => this.buildFeedDto(feed));
   }
 }

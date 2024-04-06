@@ -54,4 +54,12 @@ export class FeedsController {
   ): Promise<FeedDto[]> {
     return await this.feedsService.getHashtagFeeds(user.id, tag);
   }
+
+  @Get('like')
+  @ApiOperation({ summary: '좋아요 피드 목록 조회' })
+  @ApiOkResponse({ type: [FeedDto] })
+  @SerializeOptions({ type: FeedDto })
+  async getLikeFeeds(@CurrentUser() user: Users): Promise<FeedDto[]> {
+    return await this.feedsService.getLikeFeeds(user.id);
+  }
 }
