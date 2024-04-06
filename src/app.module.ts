@@ -13,6 +13,7 @@ import { CustomConfigModule } from './config/custom-config.module';
 import { FollowsModule } from './follows/follows.module';
 import { CommentsModule } from './comments/comments.module';
 import { HashtagsModule } from './hashtags/hashtags.module';
+import { LikeModule } from './like/like.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { HashtagsModule } from './hashtags/hashtags.module';
     FollowsModule,
     CommentsModule,
     HashtagsModule,
+    LikeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
