@@ -26,7 +26,7 @@ export class FeedsService {
     if (hashtags.length > 0) await this.assignHashtag(feed.id, hashtags);
   }
 
-  // TODO: feed service 에 있는 게 맞나?
+  // TODO: feed service 에 있는 게 맞나? -> feeds-hashtags.service.ts 를 만들어야 하나?
   async assignHashtag(feedId: number, hashtags: string[]): Promise<void> {
     await Promise.all(
       hashtags.map(async (tag) => {
