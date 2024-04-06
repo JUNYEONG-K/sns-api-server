@@ -32,7 +32,7 @@ export class CommentsController {
   async leaveComment(
     @CurrentUser() user: Users,
     @Body() args: LeaveCommentRequestDto,
-  ) {
+  ): Promise<void> {
     await this.commentsService.leaveComment(user.id, args);
   }
 
