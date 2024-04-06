@@ -45,4 +45,12 @@ export class CommentsController {
   ): Promise<CommentDto[]> {
     return await this.commentsService.getFeedComments(feedId);
   }
+
+  @Get('like')
+  @ApiOperation({ summary: '좋아요 댓글 조회' })
+  @ApiOkResponse({ type: [CommentDto] })
+  @SerializeOptions({ type: CommentDto })
+  async getLikeComments(@CurrentUser() user: Users): Promise<CommentDto[]> {
+    return await this.commentsService.getLikeComments(user.id);
+  }
 }
