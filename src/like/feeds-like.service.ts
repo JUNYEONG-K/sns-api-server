@@ -20,14 +20,4 @@ export class FeedsLikeService implements LikeService<Feeds> {
       where: { feedId_userId: { feedId: targetId, userId } },
     });
   }
-
-  async getUserLikes(userId: number): Promise<Feeds[]> {
-    const feedLikes = await this.prisma.feedLikes.findMany({
-      where: { userId },
-      include: { feed: true },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return feedLikes.map((feedLike) => feedLike.feed);
-  }
 }

@@ -95,7 +95,17 @@ export class FeedsService {
   }
 
   async getLikeFeeds(userId: number): Promise<FeedDto[]> {
-    const feeds = await this.feedsLikeService.getUserLikes(userId);
+    const feeds = await this.prisma.feeds.findMany({
+      where: {
+        feedLikes: {
+          some: {
+            userId,
+          },
+        },
+      },
+      include: { user: true },
+      orderBy: { createdAt: 'desc' },
+    });
     return feeds.map((feed) => this.buildFeedDto(feed));
   }
 }
