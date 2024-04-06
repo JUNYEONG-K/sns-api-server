@@ -55,18 +55,20 @@ export class CommentsService {
   }
 
   async getLikeComments(userId: number): Promise<CommentDto[]> {
-    const comments = await this.prisma.comments.findMany({
-      where: {
-        commentLikes: {
-          some: {
-            userId,
-          },
-        },
+    const commentLikes = await this.prisma.commentLikes.findMany({
+      where: { userId },
+      include: {
+        comment: true,
+        user: true,
       },
-      include: { user: true },
       orderBy: { createdAt: 'desc' },
     });
-
-    return comments.map((comment) => this.buildCommentDto(comment));
+    return commentLikes.map((commentLike) => {
+      const comment: Comments & { user: Users } = {
+        ...commentLike.comment,
+        user: commentLike.user,
+      };
+      return this.buildCommentDto(comment);
+    });
   }
 }
