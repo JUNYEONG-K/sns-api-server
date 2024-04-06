@@ -20,14 +20,4 @@ export class CommentsLikeService implements LikeService<Comments> {
       where: { commentId_userId: { commentId: targetId, userId } },
     });
   }
-
-  async getUserLikes(userId: number): Promise<Comments[]> {
-    const commentLikes = await this.prisma.commentLikes.findMany({
-      where: { userId },
-      include: { comment: true },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return commentLikes.map((commentLike) => commentLike.comment);
-  }
 }
