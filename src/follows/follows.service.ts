@@ -28,4 +28,15 @@ export class FollowsService {
     const followings = await this.getFollowings(followerId);
     return followings.map((following) => following.followeeId);
   }
+
+  async getFollowers(followeeId: number): Promise<Follows[]> {
+    return await this.prisma.follows.findMany({
+      where: { followeeId },
+    });
+  }
+
+  async getFollowerUserIds(followeeId: number): Promise<number[]> {
+    const followers = await this.getFollowers(followeeId);
+    return followers.map((follower) => follower.followerId);
+  }
 }
