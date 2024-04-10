@@ -36,6 +36,7 @@ export class FeedsController {
     await this.feedsService.upload(user.id, args);
   }
 
+  // TODO: 내가 좋아요 누른 피드인지
   @Get('following')
   @ApiOperation({ summary: '팔로잉 피드 목록 조회' })
   @ApiOkResponse({ type: [FeedDto] })

@@ -71,6 +71,18 @@ export class FeedsService {
   }
 
   async getHashtagFeeds(userId: number, tag: string) {
+    const feedsHashtags = await this.prisma.feedsHashtags.findMany({
+      where: {
+        hashtag: { is: { tag } },
+      },
+      include: {
+        feed: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
     const feeds = await this.prisma.feeds.findMany({
       where: {
         feedsHashtags: {
@@ -89,6 +101,9 @@ export class FeedsService {
       orderBy: { createdAt: 'desc' },
     });
 
+    return feedsHashtags.map((feedsHashtag) =>
+      this.buildFeedDto(feedsHashtag.feed),
+    );
     return feeds.map((feed) => this.buildFeedDto(feed));
   }
 
