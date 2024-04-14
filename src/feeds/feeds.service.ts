@@ -59,17 +59,18 @@ export class FeedsService {
     const followingUserIds =
       await this.followsService.getFollowingUserIds(userId);
     const feeds = await this.getFeedsByUsers(followingUserIds);
-    return feeds.map((feed) => this.buildFeedDto(feed));
+    return feeds.map((feed) => this.buildFeedDto(userId, feed));
   }
 
-  buildFeedDto(feed: Feeds & { user: Users; feedLikes: FeedLikes[] }): FeedDto {
+  buildFeedDto(
+    userId: number,
+    feed: Feeds & { user: Users; feedLikes: FeedLikes[] },
+  ): FeedDto {
     return {
       ...feed,
       user: { ...feed.user },
       likeCount: feed.feedLikes.length,
-      liked: !!feed.feedLikes.find(
-        (feedLike) => feedLike.userId == feed.user.id,
-      ),
+      liked: !!feed.feedLikes.find((feedLike) => feedLike.userId == userId),
     };
   }
 
@@ -89,7 +90,7 @@ export class FeedsService {
     });
 
     return feedsHashtags.map((feedsHashtag) =>
-      this.buildFeedDto(feedsHashtag.feed),
+      this.buildFeedDto(userId, feedsHashtag.feed),
     );
   }
 
@@ -112,7 +113,7 @@ export class FeedsService {
         user: feedLike.user,
         feedLikes: feedLike.feed.feedLikes,
       };
-      return this.buildFeedDto(feed);
+      return this.buildFeedDto(userId, feed);
     });
   }
 }
