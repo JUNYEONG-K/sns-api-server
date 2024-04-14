@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadFeedRequestDto } from './dto/request/upload-feed.request.dto';
-import { Feeds, Users } from '@prisma/client';
+import { Feeds, Users, FeedLikes } from '@prisma/client';
 import { FollowsService } from '../follows/follows.service';
 import { FeedDto } from './dto/response/feed.dto';
 import { HashtagsService } from '../hashtags/hashtags.service';
@@ -47,10 +47,10 @@ export class FeedsService {
 
   async getFeedsByUsers(
     userIds: number[],
-  ): Promise<(Feeds & { user: Users })[]> {
+  ): Promise<(Feeds & { user: Users; feedLikes: FeedLikes[] })[]> {
     return await this.prisma.feeds.findMany({
       where: { userId: { in: userIds } },
-      include: { user: true },
+      include: { user: true, feedLikes: true },
       orderBy: { createdAt: 'desc' }, // TODO: feeds 의 createdAt 이 아니라... user 의 uploadAt 을 기준으로 할 수도 있을 듯?
     });
   }
@@ -62,64 +62,55 @@ export class FeedsService {
     return feeds.map((feed) => this.buildFeedDto(feed));
   }
 
-  // TODO: 음.. 이거 나중에 usersService 랑 순환참조 생길 것 같은데... 어떻게 하는게 좋을까?
-  buildFeedDto(feed: Feeds & { user: Users }): FeedDto {
+  buildFeedDto(feed: Feeds & { user: Users; feedLikes: FeedLikes[] }): FeedDto {
     return {
       ...feed,
       user: { ...feed.user },
+      likeCount: feed.feedLikes.length,
+      liked: !!feed.feedLikes.find(
+        (feedLike) => feedLike.userId == feed.user.id,
+      ),
     };
   }
 
-  async getHashtagFeeds(userId: number, tag: string) {
-    // const feedsHashtags = await this.prisma.feedsHashtags.findMany({
-    //   where: {
-    //     hashtag: { is: { tag } },
-    //   },
-    //   include: {
-    //     feed: {
-    //       include: {
-    //         user: true,
-    //       },
-    //     },
-    //   },
-    // });
-    const feeds = await this.prisma.feeds.findMany({
+  async getHashtagFeeds(userId: number, tag: string): Promise<FeedDto[]> {
+    const feedsHashtags = await this.prisma.feedsHashtags.findMany({
       where: {
-        feedsHashtags: {
-          some: {
-            hashtag: {
-              is: {
-                tag: {
-                  equals: tag,
-                },
-              },
-            },
+        hashtag: { is: { tag } },
+      },
+      include: {
+        feed: {
+          include: {
+            user: true,
+            feedLikes: true,
           },
         },
       },
-      include: { user: true },
-      orderBy: { createdAt: 'desc' },
     });
 
-    // return feedsHashtags.map((feedsHashtag) =>
-    //   this.buildFeedDto(feedsHashtag.feed),
-    // );
-    return feeds.map((feed) => this.buildFeedDto(feed));
+    return feedsHashtags.map((feedsHashtag) =>
+      this.buildFeedDto(feedsHashtag.feed),
+    );
   }
 
   async getLikeFeeds(userId: number): Promise<FeedDto[]> {
     const feedLikes = await this.prisma.feedLikes.findMany({
       where: { userId },
       include: {
-        feed: true,
+        feed: {
+          include: {
+            feedLikes: true,
+          },
+        },
         user: true,
       },
       orderBy: { createdAt: 'desc' },
     });
     return feedLikes.map((feedLike) => {
-      const feed: Feeds & { user: Users } = {
+      const feed: Feeds & { user: Users; feedLikes: FeedLikes[] } = {
         ...feedLike.feed,
         user: feedLike.user,
+        feedLikes: feedLike.feed.feedLikes,
       };
       return this.buildFeedDto(feed);
     });

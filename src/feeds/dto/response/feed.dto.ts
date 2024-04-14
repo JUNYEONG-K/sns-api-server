@@ -18,6 +18,14 @@ export class FeedDto {
 
   @ApiProperty()
   @Expose()
+  likeCount: number;
+
+  @ApiProperty()
+  @Expose()
+  liked: boolean;
+
+  @ApiProperty()
+  @Expose()
   createdAt: Date;
 
   @ApiProperty()
