@@ -5,7 +5,7 @@ import { Feeds, Users, FeedLikes } from '@prisma/client';
 import { FollowsService } from '../follows/follows.service';
 import { FeedDto } from './dto/response/feed.dto';
 import { HashtagsService } from '../hashtags/hashtags.service';
-import DataLoader from 'dataloader';
+import * as DataLoader from 'dataloader';
 
 @Injectable()
 export class FeedsService {
