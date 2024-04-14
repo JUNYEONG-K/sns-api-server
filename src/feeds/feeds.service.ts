@@ -5,6 +5,7 @@ import { Feeds, Users, FeedLikes } from '@prisma/client';
 import { FollowsService } from '../follows/follows.service';
 import { FeedDto } from './dto/response/feed.dto';
 import { HashtagsService } from '../hashtags/hashtags.service';
+import DataLoader from 'dataloader';
 
 @Injectable()
 export class FeedsService {
@@ -59,19 +60,36 @@ export class FeedsService {
     const followingUserIds =
       await this.followsService.getFollowingUserIds(userId);
     const feeds = await this.getFeedsByUsers(followingUserIds);
-    return feeds.map((feed) => this.buildFeedDto(userId, feed));
+    return await Promise.all(
+      feeds.map(async (feed) => await this.buildFeedDto(userId, feed)),
+    );
   }
 
-  buildFeedDto(
+  async buildFeedDto(
     userId: number,
     feed: Feeds & { user: Users; feedLikes: FeedLikes[] },
-  ): FeedDto {
+  ): Promise<FeedDto> {
     return {
       ...feed,
-      user: { ...feed.user },
+      user: {
+        ...feed.user,
+        following: await this.userFollowingLoader(userId).load(feed.userId),
+      },
       likeCount: feed.feedLikes.length,
       liked: !!feed.feedLikes.find((feedLike) => feedLike.userId == userId),
     };
+  }
+
+  userFollowingLoader(userId: number): DataLoader<number, boolean> {
+    return new DataLoader<number, boolean>(async (ids: number[]) => {
+      const results = await this.prisma.follows.findMany({
+        where: { followerId: userId, followeeId: { in: ids } },
+      });
+      const following = new Map<number, boolean>();
+      results.forEach((result) => following.set(result.followeeId, true));
+
+      return ids.map((id) => following.get(id) ?? false);
+    });
   }
 
   async getHashtagFeeds(userId: number, tag: string): Promise<FeedDto[]> {
@@ -89,8 +107,11 @@ export class FeedsService {
       },
     });
 
-    return feedsHashtags.map((feedsHashtag) =>
-      this.buildFeedDto(userId, feedsHashtag.feed),
+    return await Promise.all(
+      feedsHashtags.map(
+        async (feedsHashtag) =>
+          await this.buildFeedDto(userId, feedsHashtag.feed),
+      ),
     );
   }
 
@@ -107,13 +128,15 @@ export class FeedsService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return feedLikes.map((feedLike) => {
-      const feed: Feeds & { user: Users; feedLikes: FeedLikes[] } = {
-        ...feedLike.feed,
-        user: feedLike.user,
-        feedLikes: feedLike.feed.feedLikes,
-      };
-      return this.buildFeedDto(userId, feed);
-    });
+    return await Promise.all(
+      feedLikes.map(async (feedLike) => {
+        const feed: Feeds & { user: Users; feedLikes: FeedLikes[] } = {
+          ...feedLike.feed,
+          user: feedLike.user,
+          feedLikes: feedLike.feed.feedLikes,
+        };
+        return await this.buildFeedDto(userId, feed);
+      }),
+    );
   }
 }
