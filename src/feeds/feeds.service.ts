@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UploadFeedRequestDto } from './dto/request/upload-feed.request.dto';
-import { Feeds, Users, FeedLikes } from '@prisma/client';
+import { Feeds, Users } from '@prisma/client';
 import { FollowsService } from '../follows/follows.service';
 import { FeedDto } from './dto/response/feed.dto';
 import { HashtagsService } from '../hashtags/hashtags.service';
@@ -39,19 +39,12 @@ export class FeedsService {
     );
   }
 
-  async getUserFeeds(userId: number): Promise<Feeds[]> {
-    return await this.prisma.feeds.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
   async getFeedsByUsers(
     userIds: number[],
-  ): Promise<(Feeds & { user: Users; feedLikes: FeedLikes[] })[]> {
+  ): Promise<(Feeds & { user: Users })[]> {
     return await this.prisma.feeds.findMany({
       where: { userId: { in: userIds } },
-      include: { user: true, feedLikes: true },
+      include: { user: true },
       orderBy: { createdAt: 'desc' }, // TODO: feeds 의 createdAt 이 아니라... user 의 uploadAt 을 기준으로 할 수도 있을 듯?
     });
   }
@@ -60,23 +53,37 @@ export class FeedsService {
     const followingUserIds =
       await this.followsService.getFollowingUserIds(userId);
     const feeds = await this.getFeedsByUsers(followingUserIds);
+    const feedLikedCountLoader = this.feedLikedCountLoader();
+    const feedLikedLoader = this.feedLikedLoader(userId);
     return await Promise.all(
-      feeds.map(async (feed) => await this.buildFeedDto(userId, feed)),
+      feeds.map(
+        async (feed) =>
+          await this.buildFeedDto(
+            userId,
+            feed,
+            await feedLikedCountLoader.load(feed.id),
+            await feedLikedLoader.load(feed.id),
+          ),
+      ),
     );
   }
 
   async buildFeedDto(
     userId: number,
-    feed: Feeds & { user: Users; feedLikes: FeedLikes[] },
+    feed: Feeds & { user: Users },
+    likeCount: number,
+    liked: boolean,
+    userFollowing?: boolean,
   ): Promise<FeedDto> {
     return {
       ...feed,
+      // TODO: users service, build user dto
       user: {
         ...feed.user,
-        following: await this.userFollowingLoader(userId).load(feed.userId),
+        following: userFollowing ?? true,
       },
-      likeCount: feed.feedLikes.length,
-      liked: !!feed.feedLikes.find((feedLike) => feedLike.userId == userId),
+      likeCount,
+      liked,
     };
   }
 
@@ -93,6 +100,35 @@ export class FeedsService {
     });
   }
 
+  feedLikedLoader(userId: number): DataLoader<number, boolean> {
+    return new DataLoader<number, boolean>(async (ids: number[]) => {
+      const results = await this.prisma.feedLikes.findMany({
+        where: { userId, feedId: { in: ids } },
+      });
+      const liked = new Map<number, boolean>();
+      results.forEach((result) => liked.set(result.feedId, true));
+
+      return ids.map((id) => liked.get(id) ?? false);
+    });
+  }
+
+  feedLikedCountLoader(): DataLoader<number, number> {
+    return new DataLoader<number, number>(async (ids: number[]) => {
+      const results = await this.prisma.feedLikes.groupBy({
+        where: { feedId: { in: ids } },
+        by: ['feedId'],
+        _count: true,
+      });
+
+      const map = new Map<number, number>();
+      results.forEach((result) => map.set(result.feedId, result._count));
+
+      return ids.map((id) => map.get(id) ?? 0);
+    });
+  }
+
+  // TODO: feedUserDtoLoader 는 불가능할까?
+
   async getHashtagFeeds(userId: number, tag: string): Promise<FeedDto[]> {
     const feedsHashtags = await this.prisma.feedsHashtags.findMany({
       where: {
@@ -102,16 +138,25 @@ export class FeedsService {
         feed: {
           include: {
             user: true,
-            feedLikes: true,
           },
         },
       },
     });
 
+    const feedLikedCountLoader = this.feedLikedCountLoader();
+    const feedLikedLoader = this.feedLikedLoader(userId);
+    const userFollowing = this.userFollowingLoader(userId);
+
     return await Promise.all(
       feedsHashtags.map(
         async (feedsHashtag) =>
-          await this.buildFeedDto(userId, feedsHashtag.feed),
+          await this.buildFeedDto(
+            userId,
+            feedsHashtag.feed,
+            await feedLikedCountLoader.load(feedsHashtag.feedId),
+            await feedLikedLoader.load(feedsHashtag.feedId),
+            await userFollowing.load(feedsHashtag.feed.userId),
+          ),
       ),
     );
   }
@@ -122,21 +167,26 @@ export class FeedsService {
       include: {
         feed: {
           include: {
-            feedLikes: true,
+            user: true,
           },
         },
-        user: true,
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    const feedLikedCountLoader = this.feedLikedCountLoader();
+    const feedLikedLoader = this.feedLikedLoader(userId);
+    const userFollowing = this.userFollowingLoader(userId);
+
     return await Promise.all(
       feedLikes.map(async (feedLike) => {
-        const feed: Feeds & { user: Users; feedLikes: FeedLikes[] } = {
-          ...feedLike.feed,
-          user: feedLike.user,
-          feedLikes: feedLike.feed.feedLikes,
-        };
-        return await this.buildFeedDto(userId, feed);
+        return await this.buildFeedDto(
+          userId,
+          feedLike.feed,
+          await feedLikedCountLoader.load(feedLike.feedId),
+          await feedLikedLoader.load(feedLike.feedId),
+          await userFollowing.load(feedLike.userId),
+        );
       }),
     );
   }
