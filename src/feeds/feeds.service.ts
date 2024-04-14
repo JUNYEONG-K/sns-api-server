@@ -80,6 +80,7 @@ export class FeedsService {
     };
   }
 
+  // TODO: follows service? users service? feeds service?
   userFollowingLoader(userId: number): DataLoader<number, boolean> {
     return new DataLoader<number, boolean>(async (ids: number[]) => {
       const results = await this.prisma.follows.findMany({
